@@ -1,0 +1,3 @@
+validation:
+  countries: ["BI", "DJ", "CD", "EG", "ET", "LY", "RW", "SO", "SS", "SD", "TZ", "UG", "KE"]
+  planning_horizon: [2021]
