@@ -1,0 +1,8 @@
+notebooks/.ipynb_checkpoints
+pypsa_data
+results
+scripts/__pycache__
+.snakemake
+gurobi.log
+*.png
+*__pycache__
