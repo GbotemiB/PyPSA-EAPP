@@ -160,7 +160,7 @@ def get_installed_capacity_ember(data, three_country_code, horizon):
     return capacity_ember
 
 
-def get_installed_capacity_pypsa(network):
+def get_installed_capacity_pypsa(network, country_code):
     """
     Get installed capacity by fuel type from the PyPSA network.
 
@@ -170,8 +170,10 @@ def get_installed_capacity_pypsa(network):
     Returns:
         pd.DataFrame: Installed capacity by fuel type.
     """
-    gen_capacities = network.generators.groupby("carrier").p_nom.sum()
-    storage_capacities = network.storage_units.groupby("carrier").p_nom.sum()
+    gen_capacities = network.generators.filter(
+        like=f"{country_code}", axis=0).groupby("carrier").p_nom.sum()
+    storage_capacities = network.storage_units.filter(
+        like=f"{country_code}", axis=0).groupby("carrier").p_nom.sum()
     capacity_pypsa = (
         pd.concat([gen_capacities, storage_capacities], axis=0) / 1e3).round(2)
 
@@ -245,7 +247,7 @@ def get_generation_capacity_ember(data, three_country_code, horizon):
     return generation_ember
 
 
-def get_generation_capacity_pypsa(network):
+def get_generation_capacity_pypsa(network, country_code):
     """
     Get electricity generation by fuel type from the PyPSA network.
 
@@ -256,11 +258,13 @@ def get_generation_capacity_pypsa(network):
         pd.DataFrame: Electricity generation by fuel type.
     """
     gen_capacities = (network.generators_t
-                      .p.multiply(network.snapshot_weightings.objective, axis=0)
+                      .p.filter(like=f"{country_code}", axis=1)
+                      .multiply(network.snapshot_weightings.objective, axis=0)
                       .groupby(network.generators.carrier, axis=1).sum().sum())
 
     storage_capacities = (network.storage_units_t
-                          .p.multiply(network.snapshot_weightings.objective, axis=0)
+                          .p.filter(like=f"{country_code}", axis=1)
+                          .multiply(network.snapshot_weightings.objective, axis=0)
                           .groupby(network.storage_units.carrier, axis=1).sum().sum())
 
     # Combine generator and storage generation capacities
